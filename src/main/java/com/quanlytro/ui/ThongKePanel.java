@@ -34,7 +34,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         JPanel top = new JPanel(new GridLayout(0, 2, 8, 8));
-        top.setBorder(BorderFactory.createTitledBorder("So lieu nhanh"));
+        top.setBorder(BorderFactory.createTitledBorder("So lieu nhanh (theo day tro dang chon)"));
         top.add(new JLabel("So phong trong:"));
         top.add(lbPhongTrong);
 
@@ -72,7 +72,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
         paidTable.setFillsViewportHeight(true);
 
         JPanel unpaidWrap = new JPanel(new BorderLayout());
-        unpaidWrap.setBorder(BorderFactory.createTitledBorder("Hoa don chua thanh toan (tat ca ky)"));
+        unpaidWrap.setBorder(BorderFactory.createTitledBorder("Hoa don chua thanh toan (tat ca ky, trong day)"));
         unpaidWrap.add(new JScrollPane(unpaidTable), BorderLayout.CENTER);
         unpaidWrap.setPreferredSize(new Dimension(0, 160));
 

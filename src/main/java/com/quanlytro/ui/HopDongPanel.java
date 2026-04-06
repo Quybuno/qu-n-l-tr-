@@ -120,8 +120,9 @@ public class HopDongPanel extends JPanel implements Refreshable {
 
         JLabel hint = new JLabel(
                 "<html><body style='width:520px'><small>"
-                        + "<b>Goi y:</b> Combo phong chi hien phong con <b>TRONG</b> (phong da thue se khong co). "
-                        + "Bang duoi la <b>hop dong da lap</b>, khong phai danh sach phong hay khach."
+                        + "<b>Goi y:</b> Phong / hop dong theo <b>day dang chon</b> o tren cua so. "
+                        + "Combo phong chi hien phong <b>TRONG</b> trong day do. "
+                        + "Bang duoi la <b>hop dong da lap</b> trong day."
                         + "</small></body></html>");
         JPanel north = new JPanel(new BorderLayout(0, 8));
         north.add(hint, BorderLayout.NORTH);

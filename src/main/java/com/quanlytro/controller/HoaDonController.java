@@ -1,5 +1,6 @@
 package com.quanlytro.controller;
 
+import com.quanlytro.context.DayTroContext;
 import com.quanlytro.dao.ChiSoDienNuocDAO;
 import com.quanlytro.dao.HoaDonDAO;
 import com.quanlytro.dao.HopDongDAO;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class HoaDonController {
 
@@ -102,6 +104,18 @@ public class HoaDonController {
     }
 
     public List<HoaDon> danhSachHoaDon() {
-        return hoaDonDAO.getAll();
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return List.of();
+        }
+        return hoaDonDAO.getAll().stream()
+                .filter(h -> {
+                    HopDong hd = h.getHopDong();
+                    if (hd == null || hd.getPhongTro() == null) {
+                        return false;
+                    }
+                    return Objects.equals(hd.getPhongTro().getDayTroId(), dayId);
+                })
+                .collect(Collectors.toList());
     }
 }

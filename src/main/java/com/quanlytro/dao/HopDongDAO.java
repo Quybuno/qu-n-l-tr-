@@ -179,4 +179,29 @@ public class HopDongDAO implements IGenericDAO<HopDong> {
         }
         return list;
     }
+
+    /** Hop dong co phong thuoc day tro (da hydrate). */
+    public List<HopDong> getAllByDayTroId(String dayTroId) {
+        String sql = """
+                SELECT h.id, h.ma_hop_dong, h.phong_tro_id, h.nguoi_thue_id, h.ngay_bat_dau, h.ngay_ket_thuc,
+                       h.tien_coc, h.gia_dien_moi_so, h.gia_nuoc_moi_khoi
+                FROM hop_dong h
+                INNER JOIN phong_tro p ON h.phong_tro_id = p.id
+                WHERE p.day_tro_id = ?
+                ORDER BY h.ngay_bat_dau DESC
+                """;
+        List<HopDong> list = new ArrayList<>();
+        try (Connection c = DatabaseUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, dayTroId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(hydrate(mapRow(rs)));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
 }

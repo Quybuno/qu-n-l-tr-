@@ -1,5 +1,6 @@
 package com.quanlytro.controller;
 
+import com.quanlytro.context.DayTroContext;
 import com.quanlytro.dao.ChiSoDienNuocDAO;
 import com.quanlytro.dao.HopDongDAO;
 import com.quanlytro.model.ChiSoDienNuoc;
@@ -51,7 +52,11 @@ public class ChiSoController {
     }
 
     public List<ChiSoDienNuoc> danhSachTatCa() {
-        return chiSoDienNuocDAO.findAll();
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return List.of();
+        }
+        return chiSoDienNuocDAO.findAllByDayTroId(dayId);
     }
 
     public HopDong timHopDong(String id) {

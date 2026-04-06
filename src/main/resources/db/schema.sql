@@ -6,13 +6,23 @@ CREATE DATABASE IF NOT EXISTS quanly_phong_tro
 
 USE quanly_phong_tro;
 
+CREATE TABLE IF NOT EXISTS day_tro (
+    id VARCHAR(36) PRIMARY KEY,
+    ma_day VARCHAR(32) NOT NULL,
+    ten_day VARCHAR(128) NOT NULL,
+    dia_chi VARCHAR(512),
+    UNIQUE KEY uk_ma_day (ma_day)
+);
+
 CREATE TABLE IF NOT EXISTS phong_tro (
     id VARCHAR(36) PRIMARY KEY,
+    day_tro_id VARCHAR(36) NOT NULL,
     ma_phong VARCHAR(64) NOT NULL,
     dien_tich DECIMAL(12, 2),
     gia_thue_thang DECIMAL(15, 2) NOT NULL,
     trang_thai VARCHAR(32) NOT NULL,
-    UNIQUE KEY uk_ma_phong (ma_phong)
+    UNIQUE KEY uk_day_ma_phong (day_tro_id, ma_phong),
+    CONSTRAINT fk_pt_day FOREIGN KEY (day_tro_id) REFERENCES day_tro (id)
 );
 
 CREATE TABLE IF NOT EXISTS nguoi_thue (

@@ -1,5 +1,6 @@
 package com.quanlytro.controller;
 
+import com.quanlytro.context.DayTroContext;
 import com.quanlytro.dao.HopDongDAO;
 import com.quanlytro.dao.NguoiThueDAO;
 import com.quanlytro.dao.PhongTroDAO;
@@ -10,6 +11,7 @@ import com.quanlytro.utils.AppConstant;
 import com.quanlytro.utils.ValidationUtils;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -89,7 +91,11 @@ public class HopDongController {
     }
 
     public List<HopDong> danhSachHopDong() {
-        return hopDongDAO.getAll();
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return Collections.emptyList();
+        }
+        return hopDongDAO.getAllByDayTroId(dayId);
     }
 
     public HopDong timHopDongTheoId(String id) {

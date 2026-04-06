@@ -1,11 +1,13 @@
 package com.quanlytro.controller;
 
+import com.quanlytro.context.DayTroContext;
 import com.quanlytro.dao.PhongTroDAO;
 import com.quanlytro.model.PhongTro;
 import com.quanlytro.model.enums.TrangThaiPhong;
 import com.quanlytro.utils.ValidationUtils;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -18,20 +20,24 @@ public class PhongController {
         this.phongTroDAO = phongTroDAO;
     }
 
-    public String themPhong(String maPhong, BigDecimal dienTich, BigDecimal giaThue) {
+    public String themPhong(String dayTroId, String maPhong, BigDecimal dienTich, BigDecimal giaThue) {
+        if (dayTroId == null || dayTroId.isBlank()) {
+            return "Chua chon day tro.";
+        }
         if (!ValidationUtils.isNonBlank(maPhong)) {
             return "Ma phong khong duoc de trong.";
         }
         if (giaThue == null || giaThue.signum() <= 0) {
             return "Gia thue phai lon hon 0.";
         }
-        boolean trungMa = phongTroDAO.getAll().stream()
+        boolean trungMa = phongTroDAO.getByDayTroId(dayTroId).stream()
                 .anyMatch(p -> Objects.equals(p.getMaPhong(), maPhong.trim()));
         if (trungMa) {
-            return "Ma phong da ton tai.";
+            return "Ma phong da ton tai trong day nay.";
         }
         PhongTro p = new PhongTro();
         p.setId(UUID.randomUUID().toString());
+        p.setDayTroId(dayTroId);
         p.setMaPhong(maPhong.trim());
         p.setDienTich(dienTich);
         p.setGiaThueThang(giaThue);
@@ -41,7 +47,11 @@ public class PhongController {
     }
 
     public List<PhongTro> danhSachPhong() {
-        return phongTroDAO.getAll();
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return Collections.emptyList();
+        }
+        return phongTroDAO.getByDayTroId(dayId);
     }
 
     public PhongTro timPhongTheoId(String id) {

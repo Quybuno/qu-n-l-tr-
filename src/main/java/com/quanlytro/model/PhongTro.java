@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 public class PhongTro {
 
     private String id;
+    /** FK day_tro — ma phong chi can unique trong cung mot day. */
+    private String dayTroId;
     private String maPhong;
     private BigDecimal dienTich;
     private BigDecimal giaThueThang;
@@ -29,6 +31,14 @@ public class PhongTro {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getDayTroId() {
+        return dayTroId;
+    }
+
+    public void setDayTroId(String dayTroId) {
+        this.dayTroId = dayTroId;
     }
 
     public String getMaPhong() {

@@ -1,12 +1,14 @@
 package com.quanlytro;
 
 import com.quanlytro.controller.ChiSoController;
+import com.quanlytro.controller.DayTroController;
 import com.quanlytro.controller.HoaDonController;
 import com.quanlytro.controller.HopDongController;
 import com.quanlytro.controller.KhachController;
 import com.quanlytro.controller.PhongController;
 import com.quanlytro.controller.ThongKeController;
 import com.quanlytro.dao.ChiSoDienNuocDAO;
+import com.quanlytro.dao.DayTroDAO;
 import com.quanlytro.dao.HoaDonDAO;
 import com.quanlytro.dao.HopDongDAO;
 import com.quanlytro.dao.NguoiThueDAO;
@@ -22,12 +24,14 @@ public final class Main {
         SchemaMigrator.ensureLatest();
 
         PhongTroDAO phongTroDAO = new PhongTroDAO();
+        DayTroDAO dayTroDAO = new DayTroDAO();
         NguoiThueDAO nguoiThueDAO = new NguoiThueDAO();
         HopDongDAO hopDongDAO = new HopDongDAO(phongTroDAO, nguoiThueDAO);
         ChiSoDienNuocDAO chiSoDienNuocDAO = new ChiSoDienNuocDAO();
         HoaDonDAO hoaDonDAO = new HoaDonDAO(hopDongDAO);
 
         PhongController phongController = new PhongController(phongTroDAO);
+        DayTroController dayTroController = new DayTroController(dayTroDAO, phongTroDAO);
         KhachController khachController = new KhachController(nguoiThueDAO);
         HopDongController hopDongController = new HopDongController(phongTroDAO, nguoiThueDAO, hopDongDAO);
         ChiSoController chiSoController = new ChiSoController(chiSoDienNuocDAO, hopDongDAO);
@@ -42,7 +46,8 @@ public final class Main {
                     hopDongController,
                     chiSoController,
                     hoaDonController,
-                    thongKeController
+                    thongKeController,
+                    dayTroController
             );
             frame.setVisible(true);
         });

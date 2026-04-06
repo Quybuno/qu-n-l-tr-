@@ -125,4 +125,28 @@ public class ChiSoDienNuocDAO {
         }
         return list;
     }
+
+    public List<ChiSoDienNuoc> findAllByDayTroId(String dayTroId) {
+        String sql = """
+                SELECT c.id, c.hop_dong_id, c.nam, c.thang, c.chi_so_dien_cu, c.chi_so_dien_moi, c.chi_so_nuoc_cu, c.chi_so_nuoc_moi
+                FROM chi_so_dien_nuoc c
+                INNER JOIN hop_dong h ON c.hop_dong_id = h.id
+                INNER JOIN phong_tro p ON h.phong_tro_id = p.id
+                WHERE p.day_tro_id = ?
+                ORDER BY c.nam DESC, c.thang DESC, c.hop_dong_id
+                """;
+        List<ChiSoDienNuoc> list = new ArrayList<>();
+        try (Connection c = DatabaseUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, dayTroId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
 }

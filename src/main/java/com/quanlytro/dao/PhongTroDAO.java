@@ -16,6 +16,7 @@ public class PhongTroDAO implements IGenericDAO<PhongTro> {
     private static PhongTro mapRow(ResultSet rs) throws SQLException {
         PhongTro p = new PhongTro();
         p.setId(rs.getString("id"));
+        p.setDayTroId(rs.getString("day_tro_id"));
         p.setMaPhong(rs.getString("ma_phong"));
         p.setDienTich(rs.getBigDecimal("dien_tich"));
         p.setGiaThueThang(rs.getBigDecimal("gia_thue_thang"));
@@ -26,16 +27,17 @@ public class PhongTroDAO implements IGenericDAO<PhongTro> {
     @Override
     public void add(PhongTro t) {
         String sql = """
-                INSERT INTO phong_tro (id, ma_phong, dien_tich, gia_thue_thang, trang_thai)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO phong_tro (id, day_tro_id, ma_phong, dien_tich, gia_thue_thang, trang_thai)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
         try (Connection c = DatabaseUtil.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, t.getId());
-            ps.setString(2, t.getMaPhong());
-            ps.setObject(3, t.getDienTich());
-            ps.setBigDecimal(4, t.getGiaThueThang());
-            ps.setString(5, t.getTrangThai().name());
+            ps.setString(2, t.getDayTroId());
+            ps.setString(3, t.getMaPhong());
+            ps.setObject(4, t.getDienTich());
+            ps.setBigDecimal(5, t.getGiaThueThang());
+            ps.setString(6, t.getTrangThai().name());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -45,16 +47,17 @@ public class PhongTroDAO implements IGenericDAO<PhongTro> {
     @Override
     public void update(PhongTro t) {
         String sql = """
-                UPDATE phong_tro SET ma_phong = ?, dien_tich = ?, gia_thue_thang = ?, trang_thai = ?
+                UPDATE phong_tro SET day_tro_id = ?, ma_phong = ?, dien_tich = ?, gia_thue_thang = ?, trang_thai = ?
                 WHERE id = ?
                 """;
         try (Connection c = DatabaseUtil.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, t.getMaPhong());
-            ps.setObject(2, t.getDienTich());
-            ps.setBigDecimal(3, t.getGiaThueThang());
-            ps.setString(4, t.getTrangThai().name());
-            ps.setString(5, t.getId());
+            ps.setString(1, t.getDayTroId());
+            ps.setString(2, t.getMaPhong());
+            ps.setObject(3, t.getDienTich());
+            ps.setBigDecimal(4, t.getGiaThueThang());
+            ps.setString(5, t.getTrangThai().name());
+            ps.setString(6, t.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -75,7 +78,10 @@ public class PhongTroDAO implements IGenericDAO<PhongTro> {
 
     @Override
     public PhongTro findById(Object id) {
-        String sql = "SELECT id, ma_phong, dien_tich, gia_thue_thang, trang_thai FROM phong_tro WHERE id = ?";
+        String sql = """
+                SELECT id, day_tro_id, ma_phong, dien_tich, gia_thue_thang, trang_thai
+                FROM phong_tro WHERE id = ?
+                """;
         try (Connection c = DatabaseUtil.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, String.valueOf(id));
@@ -92,7 +98,10 @@ public class PhongTroDAO implements IGenericDAO<PhongTro> {
 
     @Override
     public List<PhongTro> getAll() {
-        String sql = "SELECT id, ma_phong, dien_tich, gia_thue_thang, trang_thai FROM phong_tro ORDER BY ma_phong";
+        String sql = """
+                SELECT id, day_tro_id, ma_phong, dien_tich, gia_thue_thang, trang_thai
+                FROM phong_tro ORDER BY day_tro_id, ma_phong
+                """;
         List<PhongTro> list = new ArrayList<>();
         try (Connection c = DatabaseUtil.getConnection();
              PreparedStatement ps = c.prepareStatement(sql);
@@ -104,5 +113,41 @@ public class PhongTroDAO implements IGenericDAO<PhongTro> {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    public List<PhongTro> getByDayTroId(String dayTroId) {
+        String sql = """
+                SELECT id, day_tro_id, ma_phong, dien_tich, gia_thue_thang, trang_thai
+                FROM phong_tro WHERE day_tro_id = ? ORDER BY ma_phong
+                """;
+        List<PhongTro> list = new ArrayList<>();
+        try (Connection c = DatabaseUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, dayTroId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return list;
+    }
+
+    public long countByDayTroId(String dayTroId) {
+        String sql = "SELECT COUNT(*) FROM phong_tro WHERE day_tro_id = ?";
+        try (Connection c = DatabaseUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, dayTroId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return 0;
     }
 }

@@ -1,5 +1,6 @@
 package com.quanlytro.ui;
 
+import com.quanlytro.context.DayTroContext;
 import com.quanlytro.controller.PhongController;
 import com.quanlytro.model.PhongTro;
 
@@ -109,7 +110,7 @@ public class PhongPanel extends JPanel implements Refreshable {
             UiUtils.error(this, "Gia thue khong hop le.");
             return;
         }
-        String err = phongController.themPhong(tfMa.getText(), dienTich, gia);
+        String err = phongController.themPhong(DayTroContext.getSelectedDayTroId(), tfMa.getText(), dienTich, gia);
         if (err != null) {
             UiUtils.error(this, err);
         } else {
