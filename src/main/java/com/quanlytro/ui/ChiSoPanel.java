@@ -104,6 +104,7 @@ public class ChiSoPanel extends JPanel implements Refreshable {
         add(hint, BorderLayout.SOUTH);
 
         refreshAll();
+        UiUtils.refreshWhenPanelShown(this, this::refreshData);
     }
 
     @Override

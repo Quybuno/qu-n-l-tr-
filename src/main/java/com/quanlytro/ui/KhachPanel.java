@@ -68,6 +68,7 @@ public class KhachPanel extends JPanel implements Refreshable {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         refresh();
+        UiUtils.refreshWhenPanelShown(this, this::refreshData);
     }
 
     @Override

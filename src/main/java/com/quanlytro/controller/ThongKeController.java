@@ -46,4 +46,12 @@ public class ThongKeController {
                 .filter(h -> h.getTrangThai() == TrangThaiHoaDon.CHUA_THANH_TOAN)
                 .collect(Collectors.toList());
     }
+
+    /** Hoa don da TT trong ky — da hydrate hop dong / phong qua DAO. */
+    public List<HoaDon> hoaDonDaThanhToanTheoKy(int nam, int thang) {
+        return hoaDonDAO.getAll().stream()
+                .filter(h -> h.getNam() == nam && h.getThang() == thang)
+                .filter(h -> h.getTrangThai() == TrangThaiHoaDon.DA_THANH_TOAN)
+                .collect(Collectors.toList());
+    }
 }

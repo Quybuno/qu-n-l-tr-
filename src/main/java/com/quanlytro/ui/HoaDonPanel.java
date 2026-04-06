@@ -108,6 +108,7 @@ public class HoaDonPanel extends JPanel implements Refreshable {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         refreshAll();
+        UiUtils.refreshWhenPanelShown(this, this::refreshData);
     }
 
     @Override

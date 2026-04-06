@@ -69,7 +69,9 @@ public class HopDongPanel extends JPanel implements Refreshable {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                     boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof PhongTro p) {
+                if (value == null) {
+                    setText("");
+                } else if (value instanceof PhongTro p) {
                     setText(p.getMaPhong() + " — " + p.getId());
                 }
                 return this;
@@ -80,7 +82,9 @@ public class HopDongPanel extends JPanel implements Refreshable {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                     boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof NguoiThue n) {
+                if (value == null) {
+                    setText("");
+                } else if (value instanceof NguoiThue n) {
                     setText(n.getHoTen() + " — " + n.getId());
                 }
                 return this;
@@ -91,9 +95,9 @@ public class HopDongPanel extends JPanel implements Refreshable {
         form.setBorder(BorderFactory.createTitledBorder("Lap hop dong"));
         form.add(new JLabel("Ma hop dong:"));
         form.add(tfMaHd);
-        form.add(new JLabel("Phong trong:"));
+        form.add(new JLabel("Phong trong (chi phong TRONG):"));
         form.add(cbPhong);
-        form.add(new JLabel("Nguoi thue:"));
+        form.add(new JLabel("Nguoi thue (tat ca khach):"));
         form.add(cbNguoi);
         form.add(new JLabel("Ngay bat dau (" + AppConstant.DATE_PATTERN + "):"));
         form.add(tfBatDau);
@@ -114,7 +118,13 @@ public class HopDongPanel extends JPanel implements Refreshable {
         actions.add(btnTao);
         actions.add(btnTai);
 
-        JPanel north = new JPanel(new BorderLayout());
+        JLabel hint = new JLabel(
+                "<html><body style='width:520px'><small>"
+                        + "<b>Goi y:</b> Combo phong chi hien phong con <b>TRONG</b> (phong da thue se khong co). "
+                        + "Bang duoi la <b>hop dong da lap</b>, khong phai danh sach phong hay khach."
+                        + "</small></body></html>");
+        JPanel north = new JPanel(new BorderLayout(0, 8));
+        north.add(hint, BorderLayout.NORTH);
         north.add(form, BorderLayout.CENTER);
         north.add(actions, BorderLayout.SOUTH);
 
@@ -122,6 +132,7 @@ public class HopDongPanel extends JPanel implements Refreshable {
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         refreshAll();
+        UiUtils.refreshWhenPanelShown(this, this::refreshData);
     }
 
     @Override

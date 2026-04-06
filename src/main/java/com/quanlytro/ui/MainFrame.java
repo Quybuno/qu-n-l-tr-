@@ -12,7 +12,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import java.awt.BorderLayout;
-import java.awt.Component;
 
 public class MainFrame extends JFrame {
 
@@ -34,13 +33,6 @@ public class MainFrame extends JFrame {
         tabs.addTab("Chi so D/N", new ChiSoPanel(chiSoController, hopDongController));
         tabs.addTab("Hoa don", new HoaDonPanel(hoaDonController, hopDongController));
         tabs.addTab("Thong ke", new ThongKePanel(thongKeController));
-
-        tabs.addChangeListener(e -> {
-            Component c = tabs.getSelectedComponent();
-            if (c instanceof Refreshable r) {
-                r.refreshData();
-            }
-        });
 
         add(tabs, BorderLayout.CENTER);
     }
