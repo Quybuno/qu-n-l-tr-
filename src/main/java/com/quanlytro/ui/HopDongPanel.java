@@ -68,6 +68,7 @@ public class HopDongPanel extends JPanel implements Refreshable {
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        UiUtils.styleTable(table);
         installGroupedNumberRenderer(table, 5);
 
         cbPhong.setRenderer(new DefaultListCellRenderer() {
@@ -115,11 +116,19 @@ public class HopDongPanel extends JPanel implements Refreshable {
         form.add(tfGiaDien);
         form.add(new JLabel("Gia nuoc / khoi (VND):"));
         form.add(tfGiaNuoc);
+        UiUtils.styleTextField(tfMaHd);
+        UiUtils.styleTextField(tfBatDau);
+        UiUtils.styleTextField(tfKetThuc);
+        UiUtils.styleTextField(tfCoc);
+        UiUtils.styleTextField(tfGiaDien);
+        UiUtils.styleTextField(tfGiaNuoc);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnTao = new JButton("Tao hop dong");
+        UiUtils.stylePrimaryButton(btnTao);
         btnTao.addActionListener(e -> taoHopDong());
         JButton btnTai = new JButton("Tai lai");
+        UiUtils.styleGhostButton(btnTai);
         btnTai.addActionListener(e -> refreshAll());
         actions.add(btnTao);
         actions.add(btnTai);

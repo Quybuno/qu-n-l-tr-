@@ -71,6 +71,7 @@ public class ChiSoPanel extends JPanel implements Refreshable {
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        UiUtils.styleTable(table);
         installGroupedNumberRenderer(table, 3, 4, 5, 6);
 
         JPanel form = new JPanel(new GridLayout(0, 2, 6, 6));
@@ -89,11 +90,19 @@ public class ChiSoPanel extends JPanel implements Refreshable {
         form.add(tfNuocCu);
         form.add(new JLabel("Chi so nuoc moi:"));
         form.add(tfNuocMoi);
+        UiUtils.styleTextField(tfNam);
+        UiUtils.styleTextField(tfThang);
+        UiUtils.styleTextField(tfDienCu);
+        UiUtils.styleTextField(tfDienMoi);
+        UiUtils.styleTextField(tfNuocCu);
+        UiUtils.styleTextField(tfNuocMoi);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnLuu = new JButton("Luu chi so");
+        UiUtils.stylePrimaryButton(btnLuu);
         btnLuu.addActionListener(e -> luuChiSo());
         JButton btnTai = new JButton("Tai lai");
+        UiUtils.styleGhostButton(btnTai);
         btnTai.addActionListener(e -> refreshAll());
         actions.add(btnLuu);
         actions.add(btnTai);

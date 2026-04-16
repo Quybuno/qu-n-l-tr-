@@ -61,6 +61,7 @@ public class HoaDonPanel extends JPanel implements Refreshable {
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        UiUtils.styleTable(table);
         installGroupedNumberRenderer(table, 2);
 
         cbHopDong.setRenderer(new DefaultListCellRenderer() {
@@ -91,15 +92,25 @@ public class HoaDonPanel extends JPanel implements Refreshable {
         form.add(tfTd);
         form.add(new JLabel("Tien nuoc:"));
         form.add(tfTn);
+        UiUtils.styleTextField(tfMa);
+        UiUtils.styleTextField(tfNam);
+        UiUtils.styleTextField(tfThang);
+        UiUtils.styleTextField(tfTp);
+        UiUtils.styleTextField(tfTd);
+        UiUtils.styleTextField(tfTn);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnTao = new JButton("Tao hoa don");
+        UiUtils.stylePrimaryButton(btnTao);
         btnTao.addActionListener(e -> taoHoaDon());
         JButton btnTuChiSo = new JButton("Dien tu chi so + phong");
+        UiUtils.styleGhostButton(btnTuChiSo);
         btnTuChiSo.addActionListener(e -> dienTuChiSo());
         JButton btnTt = new JButton("Danh dau da thanh toan (chon dong)");
+        UiUtils.styleGhostButton(btnTt);
         btnTt.addActionListener(e -> danhDauThanhToan(table));
         JButton btnTai = new JButton("Tai lai");
+        UiUtils.styleGhostButton(btnTai);
         btnTai.addActionListener(e -> refreshAll());
         actions.add(btnTao);
         actions.add(btnTuChiSo);

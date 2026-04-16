@@ -1,0 +1,14 @@
+target/
+.idea/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+out/
+*.log
+.vscode/
+
+*.md
+docs/

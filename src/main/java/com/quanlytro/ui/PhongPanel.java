@@ -47,6 +47,7 @@ public class PhongPanel extends JPanel implements Refreshable {
         table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        UiUtils.styleTable(table);
         installAreaAndMoneyRenderers(table);
 
         JPanel form = new JPanel(new GridLayout(0, 2, 6, 6));
@@ -57,13 +58,19 @@ public class PhongPanel extends JPanel implements Refreshable {
         form.add(tfDienTich);
         form.add(new JLabel("Gia thue / thang:"));
         form.add(tfGia);
+        UiUtils.styleTextField(tfMa);
+        UiUtils.styleTextField(tfDienTich);
+        UiUtils.styleTextField(tfGia);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnThem = new JButton("Them phong");
+        UiUtils.stylePrimaryButton(btnThem);
         btnThem.addActionListener(e -> themPhong());
         JButton btnTai = new JButton("Tai lai");
+        UiUtils.styleGhostButton(btnTai);
         btnTai.addActionListener(e -> refresh());
         JButton btnGia = new JButton("Cap nhat gia (chon dong)");
+        UiUtils.styleGhostButton(btnGia);
         btnGia.addActionListener(e -> capNhatGia());
         actions.add(btnThem);
         actions.add(btnTai);

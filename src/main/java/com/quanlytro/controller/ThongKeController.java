@@ -46,6 +46,14 @@ public class ThongKeController {
                 .count();
     }
 
+    public long demTongPhong() {
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return 0;
+        }
+        return phongTroDAO.countByDayTroId(dayId);
+    }
+
     public List<PhongTro> phongDangTrong() {
         String dayId = DayTroContext.getSelectedDayTroId();
         if (dayId == null) {

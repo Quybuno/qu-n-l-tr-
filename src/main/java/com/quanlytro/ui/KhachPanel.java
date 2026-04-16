@@ -42,6 +42,7 @@ public class KhachPanel extends JPanel implements Refreshable {
         table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        UiUtils.styleTable(table);
 
         JPanel form = new JPanel(new GridLayout(0, 2, 6, 6));
         form.setBorder(BorderFactory.createTitledBorder("Them khach thue"));
@@ -53,13 +54,20 @@ public class KhachPanel extends JPanel implements Refreshable {
         form.add(tfSdt);
         form.add(new JLabel("Email:"));
         form.add(tfEmail);
+        UiUtils.styleTextField(tfTen);
+        UiUtils.styleTextField(tfCmnd);
+        UiUtils.styleTextField(tfSdt);
+        UiUtils.styleTextField(tfEmail);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnThem = new JButton("Them khach");
+        UiUtils.stylePrimaryButton(btnThem);
         btnThem.addActionListener(e -> themKhach());
         JButton btnXoa = new JButton("Xoa khach");
+        UiUtils.styleGhostButton(btnXoa);
         btnXoa.addActionListener(e -> xoaKhachDangChon());
         JButton btnTai = new JButton("Tai lai");
+        UiUtils.styleGhostButton(btnTai);
         btnTai.addActionListener(e -> refresh());
         actions.add(btnThem);
         actions.add(btnXoa);

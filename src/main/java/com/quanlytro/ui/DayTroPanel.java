@@ -44,6 +44,7 @@ public class DayTroPanel extends JPanel implements Refreshable {
         table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        UiUtils.styleTable(table);
 
         JPanel form = new JPanel(new GridLayout(0, 2, 6, 6));
         form.setBorder(BorderFactory.createTitledBorder("Them day tro"));
@@ -53,15 +54,22 @@ public class DayTroPanel extends JPanel implements Refreshable {
         form.add(tfTen);
         form.add(new JLabel("Dia chi (tuy chon):"));
         form.add(tfDiaChi);
+        UiUtils.styleTextField(tfMa);
+        UiUtils.styleTextField(tfTen);
+        UiUtils.styleTextField(tfDiaChi);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnThem = new JButton("Them day tro");
+        UiUtils.stylePrimaryButton(btnThem);
         btnThem.addActionListener(e -> themDay());
         JButton btnSua = new JButton("Sua day");
+        UiUtils.styleGhostButton(btnSua);
         btnSua.addActionListener(e -> suaDay());
         JButton btnXoa = new JButton("Xoa day");
+        UiUtils.styleGhostButton(btnXoa);
         btnXoa.addActionListener(e -> xoaDay());
         JButton btnTai = new JButton("Tai lai");
+        UiUtils.styleGhostButton(btnTai);
         btnTai.addActionListener(e -> refresh());
         actions.add(btnThem);
         actions.add(btnSua);

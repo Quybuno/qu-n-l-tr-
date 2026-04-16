@@ -14,9 +14,11 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -26,6 +28,7 @@ import java.util.Locale;
 public class ThongKePanel extends JPanel implements Refreshable {
 
     private final ThongKeController thongKeController;
+    private final JLabel lbTongPhong = new JLabel("0");
     private final JLabel lbPhongTrong = new JLabel("0");
     private final JLabel lbDoanhThu = new JLabel("-");
     private final JTextField tfNam = new JTextField("2026", 6);
@@ -39,35 +42,80 @@ public class ThongKePanel extends JPanel implements Refreshable {
         setLayout(new BorderLayout(8, 8));
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
-        JPanel top = new JPanel(new GridLayout(0, 2, 8, 8));
+        JPanel top = new JPanel(new GridBagLayout());
         top.setBorder(BorderFactory.createTitledBorder("So lieu nhanh (theo day tro dang chon)"));
-        top.add(new JLabel("So phong trong:"));
-        top.add(lbPhongTrong);
 
-        JPanel doanhThuInputs = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        doanhThuInputs.add(new JLabel("Nam:"));
-        doanhThuInputs.add(tfNam);
-        doanhThuInputs.add(new JLabel("Tu:"));
-        doanhThuInputs.add(tfThang);
-        doanhThuInputs.add(new JLabel("Den:"));
-        doanhThuInputs.add(tfThangDen);
+        UiUtils.styleTextField(tfNam);
+        UiUtils.styleTextField(tfThang);
+        UiUtils.styleTextField(tfThangDen);
 
-        JPanel doanhThuButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel doanhThuRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        doanhThuRow.setOpaque(false);
+        doanhThuRow.add(new JLabel("Nam:"));
+        doanhThuRow.add(tfNam);
+        doanhThuRow.add(new JLabel("Tu:"));
+        doanhThuRow.add(tfThang);
+        doanhThuRow.add(new JLabel("Den:"));
+        doanhThuRow.add(tfThangDen);
+
         JButton btnTinh = new JButton("Tinh doanh thu theo thang");
+        UiUtils.stylePrimaryButton(btnTinh);
         btnTinh.addActionListener(e -> tinhDoanhThuTheoKy());
-        // JButton btnTinhNam = new JButton("Tong doanh thu nam");
-        // btnTinhNam.addActionListener(e -> tinhDoanhThuNam());
-        doanhThuButtons.add(btnTinh);
-        // doanhThuButtons.add(btnTinhNam);
+        doanhThuRow.add(btnTinh);
 
-        JPanel doanhThuWrap = new JPanel();
-        doanhThuWrap.setLayout(new BoxLayout(doanhThuWrap, BoxLayout.Y_AXIS));
-        doanhThuWrap.add(doanhThuInputs);
-        doanhThuWrap.add(doanhThuButtons);
-        top.add(new JLabel("Doanh thu theo ky:"));
-        top.add(doanhThuWrap);
-        top.add(new JLabel("Ket qua:"));
-        top.add(lbDoanhThu);
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 0;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        g.anchor = GridBagConstraints.WEST;
+        g.insets = new Insets(6, 8, 6, 10);
+        top.add(new JLabel("Tong so phong:"), g);
+
+        g.gridx = 1;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.insets = new Insets(6, 0, 6, 8);
+        top.add(lbTongPhong, g);
+
+        g.gridx = 0;
+        g.gridy++;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        g.insets = new Insets(6, 8, 6, 10);
+        top.add(new JLabel("So phong trong:"), g);
+
+        g.gridx = 1;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.insets = new Insets(6, 0, 6, 8);
+        top.add(lbPhongTrong, g);
+
+        g.gridx = 0;
+        g.gridy++;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        g.insets = new Insets(6, 8, 6, 10);
+        top.add(new JLabel("Doanh thu theo ky:"), g);
+
+        g.gridx = 1;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.insets = new Insets(6, 0, 6, 8);
+        top.add(doanhThuRow, g);
+
+        g.gridx = 0;
+        g.gridy++;
+        g.weightx = 0;
+        g.fill = GridBagConstraints.NONE;
+        g.insets = new Insets(6, 8, 6, 10);
+        top.add(new JLabel("Ket qua:"), g);
+
+        g.gridx = 1;
+        g.weightx = 1;
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.insets = new Insets(6, 0, 6, 8);
+        top.add(lbDoanhThu, g);
 
         String[] unpaidCols = {"Ma HD", "Ky", "So tien"};
         unpaidModel = new DefaultTableModel(unpaidCols, 0) {
@@ -78,6 +126,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
         };
         JTable unpaidTable = new JTable(unpaidModel);
         unpaidTable.setFillsViewportHeight(true);
+        UiUtils.styleTable(unpaidTable);
         installGroupedNumberRenderer(unpaidTable, 2);
 
         String[] paidCols = {"Ma phong", "Ma hop dong", "Ma hoa don", "Ky", "So tien"};
@@ -89,6 +138,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
         };
         JTable paidTable = new JTable(paidModel);
         paidTable.setFillsViewportHeight(true);
+        UiUtils.styleTable(paidTable);
         installGroupedNumberRenderer(paidTable, 4);
 
         JPanel unpaidWrap = new JPanel(new BorderLayout());
@@ -108,6 +158,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
         tables.add(paidWrap);
 
         JButton btnTai = new JButton("Tai lai");
+        UiUtils.styleGhostButton(btnTai);
         btnTai.addActionListener(e -> refresh());
         JPanel south = new JPanel(new FlowLayout(FlowLayout.LEFT));
         south.add(btnTai);
@@ -140,17 +191,8 @@ public class ThongKePanel extends JPanel implements Refreshable {
         }
     }
 
-    private void tinhDoanhThuNam() {
-        try {
-            int nam = Integer.parseInt(tfNam.getText().trim());
-            BigDecimal tong = thongKeController.tongDoanhThuNam(nam);
-            lbDoanhThu.setText(formatMoney(tong));
-        } catch (Exception ex) {
-            UiUtils.error(this, "Nam khong hop le.");
-        }
-    }
-
     private void refresh() {
+        lbTongPhong.setText(String.valueOf(thongKeController.demTongPhong()));
         lbPhongTrong.setText(String.valueOf(thongKeController.demPhongTrong()));
         unpaidModel.setRowCount(0);
         for (HoaDon h : thongKeController.hoaDonChuaThanhToan()) {
