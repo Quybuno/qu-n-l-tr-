@@ -3,9 +3,6 @@ package com.quanlytro.model;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Luu file theo phongTroId / nguoiThueId; tham chieu day du nap sau khi load (transient).
- */
 public class HopDong {
 
     private String id;
@@ -15,9 +12,7 @@ public class HopDong {
     private LocalDate ngayBatDau;
     private LocalDate ngayKetThuc;
     private BigDecimal tienCoc;
-    /** VND / 1 kWh */
     private BigDecimal giaDienMoiSo;
-    /** VND / 1 m3 nuoc */
     private BigDecimal giaNuocMoiKhoi;
 
     private transient PhongTro phongTro;

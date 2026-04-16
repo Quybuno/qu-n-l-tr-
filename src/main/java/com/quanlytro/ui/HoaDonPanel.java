@@ -17,12 +17,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class HoaDonPanel extends JPanel implements Refreshable {
 
@@ -56,6 +61,7 @@ public class HoaDonPanel extends JPanel implements Refreshable {
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        installGroupedNumberRenderer(table, 2);
 
         cbHopDong.setRenderer(new DefaultListCellRenderer() {
             @Override
@@ -113,6 +119,7 @@ public class HoaDonPanel extends JPanel implements Refreshable {
 
     @Override
     public void refreshData() {
+
         refreshAll();
     }
 
@@ -127,7 +134,7 @@ public class HoaDonPanel extends JPanel implements Refreshable {
             tableModel.addRow(new Object[]{
                     h.getMaHoaDon(),
                     String.format("%02d/%d", h.getThang(), h.getNam()),
-                    h.getTongTien() != null ? h.getTongTien().toString() : "",
+                    h.getTongTien(),
                     h.getTrangThai() != null ? h.getTrangThai().name() : "",
                     hdMa,
                     h.getId()
@@ -140,7 +147,7 @@ public class HoaDonPanel extends JPanel implements Refreshable {
         refreshTable();
     }
 
-    /** Lay tien phong tu gia thang; tien dien/nuoc tu chi so ky (tab Chi so). */
+//     Lay tien phong tu gia thang; tien dien/nuoc tu chi so ky (tab Chi so)
     private void dienTuChiSo() {
         HopDong hd = (HopDong) cbHopDong.getSelectedItem();
         if (hd == null) {
@@ -166,9 +173,9 @@ public class HoaDonPanel extends JPanel implements Refreshable {
             UiUtils.error(this, "Chua co chi so dien nuoc cho ky nay, hoac chi so khong hop le.");
             return;
         }
-        tfTp.setText(tp.toPlainString());
-        tfTd.setText(dn[0].toPlainString());
-        tfTn.setText(dn[1].toPlainString());
+        tfTp.setText(formatMoneyForInput(tp));
+        tfTd.setText(formatMoneyForInput(dn[0]));
+        tfTn.setText(formatMoneyForInput(dn[1]));
         UiUtils.info(this, "Da dien tien phong + dien + nuoc. Kiem tra va bam Tao hoa don.");
     }
 
@@ -191,9 +198,9 @@ public class HoaDonPanel extends JPanel implements Refreshable {
         BigDecimal td;
         BigDecimal tn;
         try {
-            tp = new BigDecimal(tfTp.getText().trim());
-            td = new BigDecimal(tfTd.getText().trim());
-            tn = new BigDecimal(tfTn.getText().trim());
+            tp = parseMoney(tfTp.getText());
+            td = parseMoney(tfTd.getText());
+            tn = parseMoney(tfTn.getText());
         } catch (Exception ex) {
             UiUtils.error(this, "So tien khong hop le.");
             return;
@@ -233,6 +240,66 @@ public class HoaDonPanel extends JPanel implements Refreshable {
         } else {
             UiUtils.info(this, "Da cap nhat trang thai.");
             refreshAll();
+        }
+    }
+
+    private static String formatMoneyForInput(BigDecimal v) {
+        if (v == null) {
+            return "";
+        }
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance(new Locale("vi", "VN"));
+        sym.setGroupingSeparator('.');
+        sym.setDecimalSeparator(',');
+        DecimalFormat fmt = new DecimalFormat("#,##0.####", sym);
+        fmt.setRoundingMode(RoundingMode.DOWN);
+        return fmt.format(v.stripTrailingZeros());
+    }
+
+    private static BigDecimal parseMoney(String raw) {
+        if (raw == null) {
+            throw new IllegalArgumentException("null");
+        }
+        String s = raw.trim();
+        if (s.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        // "3.500.000", "3,5", "3500000.00"
+        s = s.replace(" ", "");
+        s = s.replace(".", "");
+        s = s.replace(",", ".");
+        return new BigDecimal(s);
+    }
+
+    private static void installGroupedNumberRenderer(JTable table, int... modelCols) {
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance(new Locale("vi", "VN"));
+        sym.setGroupingSeparator('.');
+        sym.setDecimalSeparator(',');
+        DecimalFormat fmt = new DecimalFormat("#,##0.####", sym);
+        fmt.setRoundingMode(RoundingMode.DOWN);
+
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer() {
+            @Override
+            protected void setValue(Object value) {
+                if (value == null) {
+                    setText("");
+                    return;
+                }
+                try {
+                    BigDecimal bd = value instanceof BigDecimal b
+                            ? b
+                            : new BigDecimal(String.valueOf(value).trim());
+                    setText(fmt.format(bd.stripTrailingZeros()));
+                } catch (Exception ex) {
+                    setText(String.valueOf(value));
+                }
+            }
+        };
+
+        for (int c : modelCols) {
+            int viewCol = table.convertColumnIndexToView(c);
+            if (viewCol >= 0 && viewCol < table.getColumnModel().getColumnCount()) {
+                table.getColumnModel().getColumn(viewCol).setCellRenderer(r);
+            }
         }
     }
 }

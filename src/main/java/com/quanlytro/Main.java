@@ -32,7 +32,7 @@ public final class Main {
 
         PhongController phongController = new PhongController(phongTroDAO);
         DayTroController dayTroController = new DayTroController(dayTroDAO, phongTroDAO);
-        KhachController khachController = new KhachController(nguoiThueDAO);
+        KhachController khachController = new KhachController(nguoiThueDAO, hopDongDAO);
         HopDongController hopDongController = new HopDongController(phongTroDAO, nguoiThueDAO, hopDongDAO);
         ChiSoController chiSoController = new ChiSoController(chiSoDienNuocDAO, hopDongDAO);
         HoaDonController hoaDonController = new HoaDonController(hoaDonDAO, hopDongDAO, chiSoDienNuocDAO);

@@ -6,6 +6,7 @@ import com.quanlytro.model.NguoiThue;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -19,6 +20,7 @@ public class KhachPanel extends JPanel implements Refreshable {
 
     private final KhachController khachController;
     private final DefaultTableModel tableModel;
+    private final JTable table;
 
     private final JTextField tfTen = new JTextField(20);
     private final JTextField tfCmnd = new JTextField(14);
@@ -37,7 +39,7 @@ public class KhachPanel extends JPanel implements Refreshable {
                 return false;
             }
         };
-        JTable table = new JTable(tableModel);
+        table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
 
@@ -55,15 +57,17 @@ public class KhachPanel extends JPanel implements Refreshable {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnThem = new JButton("Them khach");
         btnThem.addActionListener(e -> themKhach());
+        JButton btnXoa = new JButton("Xoa khach");
+        btnXoa.addActionListener(e -> xoaKhachDangChon());
         JButton btnTai = new JButton("Tai lai");
         btnTai.addActionListener(e -> refresh());
         actions.add(btnThem);
+        actions.add(btnXoa);
         actions.add(btnTai);
 
         JPanel north = new JPanel(new BorderLayout());
         north.add(form, BorderLayout.CENTER);
         north.add(actions, BorderLayout.SOUTH);
-
         add(north, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
@@ -107,4 +111,35 @@ public class KhachPanel extends JPanel implements Refreshable {
             refresh();
         }
     }
+
+    private void xoaKhachDangChon() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            UiUtils.error(this, "Hay chon 1 khach trong bang de xoa.");
+            return;
+        }
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        String ten = String.valueOf(tableModel.getValueAt(modelRow, 0));
+        String id = String.valueOf(tableModel.getValueAt(modelRow, 4));
+
+        int ok = JOptionPane.showConfirmDialog(
+                this,
+                "Xoa khach \"" + ten + "\"?\nChi xoa duoc neu khong co hop dong nao.",
+                "Xac nhan xoa",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+        if (ok != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        String err = khachController.xoaKhach(id);
+        if (err != null) {
+            UiUtils.error(this, err);
+        } else {
+            UiUtils.info(this, "Da xoa khach.");
+            refresh();
+        }
+    }
+
 }

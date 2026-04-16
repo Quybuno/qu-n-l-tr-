@@ -1,5 +1,4 @@
--- MySQL / MariaDB — chay mot lan de tao database va bang
-
+-- vao mysql chay tat ca cau lenh de tao bang
 CREATE DATABASE IF NOT EXISTS quanly_phong_tro
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -42,10 +41,12 @@ CREATE TABLE IF NOT EXISTS hop_dong (
     ngay_ket_thuc DATE,
     tien_coc DECIMAL(15, 2) DEFAULT 0,
     gia_dien_moi_so DECIMAL(15, 4) NOT NULL DEFAULT 3500,
-    gia_nuoc_moi_khoi DECIMAL(15, 4) NOT NULL DEFAULT 18000,
+    gia_nuoc_moi_khoi DECIMAL(15, 4) NOT NULL DEFAULT 30000,
     CONSTRAINT fk_hd_phong FOREIGN KEY (phong_tro_id) REFERENCES phong_tro (id),
     CONSTRAINT fk_hd_nguoi FOREIGN KEY (nguoi_thue_id) REFERENCES nguoi_thue (id)
-);
+
+
+    );
 
 -- Chi so dien/nuoc theo ky (nam + thang) cho tung hop dong
 CREATE TABLE IF NOT EXISTS chi_so_dien_nuoc (
@@ -74,4 +75,19 @@ CREATE TABLE IF NOT EXISTS hoa_don (
     trang_thai VARCHAR(32) NOT NULL,
     UNIQUE KEY uk_hd_ky (hop_dong_id, nam, thang),
     CONSTRAINT fk_hd_hop_dong FOREIGN KEY (hop_dong_id) REFERENCES hop_dong (id)
+);
+
+
+CREATE TABLE IF NOT EXISTS chi_so_dien_nuoc (
+
+    id VARCHAR(36) PRIMARY KEY,
+    hop_dong_id VARCHAR(36) NOT NULL,
+    nam INT NOT NULL,
+    thang INT NOT NULL,
+    chi_so_dien_cu DECIMAL(14, 4) NOT NULL,
+    chi_so_dien_moi DECIMAL(14, 4) NOT NULL,
+    chi_so_nuoc_cu DECIMAL(14, 4) NOT NULL,
+    chi_so_nuoc_moi DECIMAL(14, 4) NOT NULL,
+    UNIQUE KEY uk_cs_ky (hop_dong_id, nam, thang),
+    CONSTRAINT fk_cs_hd FOREIGN KEY (hop_dong_id) REFERENCES hop_dong (id) ON DELETE CASCADE
 );

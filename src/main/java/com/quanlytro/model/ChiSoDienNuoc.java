@@ -2,9 +2,9 @@ package com.quanlytro.model;
 
 import java.math.BigDecimal;
 
-/**
- * Chi so dien/nuoc theo ky (nam + thang) cho mot hop dong.
- */
+
+//  Chi so dien, nuoc theo ky (nam + thang) cho mot hop dong
+
 public class ChiSoDienNuoc {
 
     private String id;

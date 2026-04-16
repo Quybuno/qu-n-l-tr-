@@ -7,7 +7,7 @@ import java.awt.event.HierarchyEvent;
 
 public final class UiUtils {
 
-    /** Goi refresh moi khi panel trong tab duoc hien thi (on dinh hon chi dung ChangeListener). */
+//    Goi refresh moi khi panel trong tab duoc hien thi
     public static void refreshWhenPanelShown(JPanel panel, Runnable onRefresh) {
         panel.addHierarchyListener(e -> {
             if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && panel.isShowing()) {

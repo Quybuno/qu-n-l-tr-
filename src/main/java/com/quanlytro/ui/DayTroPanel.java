@@ -31,7 +31,7 @@ public class DayTroPanel extends JPanel implements Refreshable {
         this.dayTroController = dayTroController;
         this.onDayListChanged = onDayListChanged;
 
-        setLayout(new BorderLayout(8, 8));
+        setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         String[] cols = {"Ma day", "Ten day", "Dia chi", "ID"};
@@ -57,9 +57,9 @@ public class DayTroPanel extends JPanel implements Refreshable {
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton btnThem = new JButton("Them day tro");
         btnThem.addActionListener(e -> themDay());
-        JButton btnSua = new JButton("Sua day (chon dong)");
+        JButton btnSua = new JButton("Sua day");
         btnSua.addActionListener(e -> suaDay());
-        JButton btnXoa = new JButton("Xoa day (chon dong)");
+        JButton btnXoa = new JButton("Xoa day");
         btnXoa.addActionListener(e -> xoaDay());
         JButton btnTai = new JButton("Tai lai");
         btnTai.addActionListener(e -> refresh());
@@ -75,9 +75,9 @@ public class DayTroPanel extends JPanel implements Refreshable {
         add(north, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        JLabel hint = new JLabel(
-                "<html><small>Phong, hop dong, thong ke theo <b>day dang chon</b> o tren cung cua cua so.</small></html>");
-        add(hint, BorderLayout.SOUTH);
+//        JLabel hint = new JLabel(
+//                "<html><small>Phong, hop dong, thong ke theo <b>day dang chon</b> o tren cung cua cua so.</small></html>");
+//        add(hint, BorderLayout.SOUTH);
 
         refresh();
         UiUtils.refreshWhenPanelShown(this, this::refreshData);

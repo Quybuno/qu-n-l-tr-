@@ -10,6 +10,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -203,5 +204,22 @@ public class HopDongDAO implements IGenericDAO<HopDong> {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    public boolean existsByNguoiThueId(String nguoiThueId) {
+        String sql = "SELECT 1 FROM hop_dong WHERE nguoi_thue_id = ? LIMIT 1";
+        try (Connection c = DatabaseUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            if (nguoiThueId != null) {
+                ps.setString(1, nguoiThueId);
+            } else {
+                ps.setNull(1, Types.VARCHAR);
+            }
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

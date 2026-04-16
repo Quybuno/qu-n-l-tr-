@@ -11,12 +11,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class ThongKePanel extends JPanel implements Refreshable {
 
@@ -25,6 +30,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
     private final JLabel lbDoanhThu = new JLabel("-");
     private final JTextField tfNam = new JTextField("2026", 6);
     private final JTextField tfThang = new JTextField("4", 4);
+    private final JTextField tfThangDen = new JTextField("4", 4);
     private final DefaultTableModel unpaidModel;
     private final DefaultTableModel paidModel;
 
@@ -38,16 +44,28 @@ public class ThongKePanel extends JPanel implements Refreshable {
         top.add(new JLabel("So phong trong:"));
         top.add(lbPhongTrong);
 
-        JPanel doanhThuRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        doanhThuRow.add(new JLabel("Nam:"));
-        doanhThuRow.add(tfNam);
-        doanhThuRow.add(new JLabel("Thang:"));
-        doanhThuRow.add(tfThang);
-        JButton btnTinh = new JButton("Tong doanh thu da thanh toan");
-        btnTinh.addActionListener(e -> tinhDoanhThu());
-        doanhThuRow.add(btnTinh);
+        JPanel doanhThuInputs = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        doanhThuInputs.add(new JLabel("Nam:"));
+        doanhThuInputs.add(tfNam);
+        doanhThuInputs.add(new JLabel("Tu:"));
+        doanhThuInputs.add(tfThang);
+        doanhThuInputs.add(new JLabel("Den:"));
+        doanhThuInputs.add(tfThangDen);
+
+        JPanel doanhThuButtons = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton btnTinh = new JButton("Tinh doanh thu theo thang");
+        btnTinh.addActionListener(e -> tinhDoanhThuTheoKy());
+        // JButton btnTinhNam = new JButton("Tong doanh thu nam");
+        // btnTinhNam.addActionListener(e -> tinhDoanhThuNam());
+        doanhThuButtons.add(btnTinh);
+        // doanhThuButtons.add(btnTinhNam);
+
+        JPanel doanhThuWrap = new JPanel();
+        doanhThuWrap.setLayout(new BoxLayout(doanhThuWrap, BoxLayout.Y_AXIS));
+        doanhThuWrap.add(doanhThuInputs);
+        doanhThuWrap.add(doanhThuButtons);
         top.add(new JLabel("Doanh thu theo ky:"));
-        top.add(doanhThuRow);
+        top.add(doanhThuWrap);
         top.add(new JLabel("Ket qua:"));
         top.add(lbDoanhThu);
 
@@ -60,6 +78,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
         };
         JTable unpaidTable = new JTable(unpaidModel);
         unpaidTable.setFillsViewportHeight(true);
+        installGroupedNumberRenderer(unpaidTable, 2);
 
         String[] paidCols = {"Ma phong", "Ma hop dong", "Ma hoa don", "Ky", "So tien"};
         paidModel = new DefaultTableModel(paidCols, 0) {
@@ -70,6 +89,7 @@ public class ThongKePanel extends JPanel implements Refreshable {
         };
         JTable paidTable = new JTable(paidModel);
         paidTable.setFillsViewportHeight(true);
+        installGroupedNumberRenderer(paidTable, 4);
 
         JPanel unpaidWrap = new JPanel(new BorderLayout());
         unpaidWrap.setBorder(BorderFactory.createTitledBorder("Hoa don chua thanh toan (tat ca ky, trong day)"));
@@ -105,15 +125,28 @@ public class ThongKePanel extends JPanel implements Refreshable {
         refresh();
     }
 
-    private void tinhDoanhThu() {
+    private void tinhDoanhThuTheoKy() {
         try {
             int nam = Integer.parseInt(tfNam.getText().trim());
-            int thang = Integer.parseInt(tfThang.getText().trim());
-            BigDecimal tong = thongKeController.tongDoanhThuThang(nam, thang);
-            lbDoanhThu.setText(tong.toPlainString());
-            fillPaidTable(nam, thang);
+            int tu = Integer.parseInt(tfThang.getText().trim());
+            int den = Integer.parseInt(tfThangDen.getText().trim());
+            BigDecimal tong = thongKeController.tongDoanhThuNhieuThang(nam, tu, den);
+            lbDoanhThu.setText(formatMoney(tong));
+            fillPaidTableRange(nam, tu, den);
+        } catch (IllegalArgumentException ex) {
+            UiUtils.error(this, "Khoang thang khong hop le (1-12, thang den khong duoc nho hon thang bat dau).");
         } catch (Exception ex) {
             UiUtils.error(this, "Nam / thang khong hop le.");
+        }
+    }
+
+    private void tinhDoanhThuNam() {
+        try {
+            int nam = Integer.parseInt(tfNam.getText().trim());
+            BigDecimal tong = thongKeController.tongDoanhThuNam(nam);
+            lbDoanhThu.setText(formatMoney(tong));
+        } catch (Exception ex) {
+            UiUtils.error(this, "Nam khong hop le.");
         }
     }
 
@@ -124,21 +157,22 @@ public class ThongKePanel extends JPanel implements Refreshable {
             unpaidModel.addRow(new Object[]{
                     h.getMaHoaDon(),
                     String.format("%02d/%d", h.getThang(), h.getNam()),
-                    h.getTongTien() != null ? h.getTongTien().toString() : ""
+                    h.getTongTien()
             });
         }
         try {
             int nam = Integer.parseInt(tfNam.getText().trim());
-            int thang = Integer.parseInt(tfThang.getText().trim());
-            fillPaidTable(nam, thang);
+            int tu = Integer.parseInt(tfThang.getText().trim());
+            int den = Integer.parseInt(tfThangDen.getText().trim());
+            fillPaidTableRange(nam, tu, den);
         } catch (Exception ex) {
             paidModel.setRowCount(0);
         }
     }
 
-    private void fillPaidTable(int nam, int thang) {
+    private void fillPaidTableRange(int nam, int tu, int den) {
         paidModel.setRowCount(0);
-        for (HoaDon h : thongKeController.hoaDonDaThanhToanTheoKy(nam, thang)) {
+        for (HoaDon h : thongKeController.hoaDonDaThanhToanTheoKhoangThang(nam, tu, den)) {
             String maPhong = "-";
             String maHd = h.getHopDongId();
             if (h.getHopDong() != null) {
@@ -152,8 +186,53 @@ public class ThongKePanel extends JPanel implements Refreshable {
                     maHd,
                     h.getMaHoaDon(),
                     String.format("%02d/%d", h.getThang(), h.getNam()),
-                    h.getTongTien() != null ? h.getTongTien().toString() : ""
+                    h.getTongTien()
             });
+        }
+    }
+
+    private static String formatMoney(BigDecimal v) {
+        if (v == null) {
+            return "-";
+        }
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance(new Locale("vi", "VN"));
+        sym.setGroupingSeparator('.');
+        sym.setDecimalSeparator(',');
+        DecimalFormat fmt = new DecimalFormat("#,##0.####", sym);
+        fmt.setRoundingMode(RoundingMode.DOWN);
+        return fmt.format(v.stripTrailingZeros());
+    }
+
+    private static void installGroupedNumberRenderer(JTable table, int... modelCols) {
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance(new Locale("vi", "VN"));
+        sym.setGroupingSeparator('.');
+        sym.setDecimalSeparator(',');
+        DecimalFormat fmt = new DecimalFormat("#,##0.####", sym);
+        fmt.setRoundingMode(RoundingMode.DOWN);
+
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer() {
+            @Override
+            protected void setValue(Object value) {
+                if (value == null) {
+                    setText("");
+                    return;
+                }
+                try {
+                    BigDecimal bd = value instanceof BigDecimal b
+                            ? b
+                            : new BigDecimal(String.valueOf(value).trim());
+                    setText(fmt.format(bd.stripTrailingZeros()));
+                } catch (Exception ex) {
+                    setText(String.valueOf(value));
+                }
+            }
+        };
+
+        for (int c : modelCols) {
+            int viewCol = table.convertColumnIndexToView(c);
+            if (viewCol >= 0 && viewCol < table.getColumnModel().getColumnCount()) {
+                table.getColumnModel().getColumn(viewCol).setCellRenderer(r);
+            }
         }
     }
 }

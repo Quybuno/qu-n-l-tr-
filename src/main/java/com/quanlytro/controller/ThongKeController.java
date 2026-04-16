@@ -69,6 +69,37 @@ public class ThongKeController {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    public BigDecimal tongDoanhThuNam(int nam) {
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return BigDecimal.ZERO;
+        }
+        return hoaDonDAO.getAll().stream()
+                .filter(h -> h.getNam() == nam)
+                .filter(h -> h.getTrangThai() == TrangThaiHoaDon.DA_THANH_TOAN)
+                .filter(h -> hoaDonThuocDay(h, dayId))
+                .map(HoaDon::getTongTien)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public BigDecimal tongDoanhThuNhieuThang(int nam, int thangTu, int thangDen) {
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return BigDecimal.ZERO;
+        }
+        if (thangTu < 1 || thangTu > 12 || thangDen < 1 || thangDen > 12 || thangDen < thangTu) {
+            throw new IllegalArgumentException("Thang khong hop le.");
+        }
+        return hoaDonDAO.getAll().stream()
+                .filter(h -> h.getNam() == nam)
+                .filter(h -> h.getThang() >= thangTu && h.getThang() <= thangDen)
+                .filter(h -> h.getTrangThai() == TrangThaiHoaDon.DA_THANH_TOAN)
+                .filter(h -> hoaDonThuocDay(h, dayId))
+                .map(HoaDon::getTongTien)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+ 
     public List<HoaDon> hoaDonChuaThanhToan() {
         String dayId = DayTroContext.getSelectedDayTroId();
         if (dayId == null) {
@@ -88,6 +119,22 @@ public class ThongKeController {
         }
         return hoaDonDAO.getAll().stream()
                 .filter(h -> h.getNam() == nam && h.getThang() == thang)
+                .filter(h -> h.getTrangThai() == TrangThaiHoaDon.DA_THANH_TOAN)
+                .filter(h -> hoaDonThuocDay(h, dayId))
+                .collect(Collectors.toList());
+    }
+
+    public List<HoaDon> hoaDonDaThanhToanTheoKhoangThang(int nam, int thangTu, int thangDen) {
+        String dayId = DayTroContext.getSelectedDayTroId();
+        if (dayId == null) {
+            return List.of();
+        }
+        if (thangTu < 1 || thangTu > 12 || thangDen < 1 || thangDen > 12 || thangDen < thangTu) {
+            throw new IllegalArgumentException("Thang khong hop le.");
+        }
+        return hoaDonDAO.getAll().stream()
+                .filter(h -> h.getNam() == nam)
+                .filter(h -> h.getThang() >= thangTu && h.getThang() <= thangDen)
                 .filter(h -> h.getTrangThai() == TrangThaiHoaDon.DA_THANH_TOAN)
                 .filter(h -> hoaDonThuocDay(h, dayId))
                 .collect(Collectors.toList());

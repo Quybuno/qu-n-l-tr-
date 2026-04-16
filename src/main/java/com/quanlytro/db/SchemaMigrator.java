@@ -8,15 +8,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * Cap nhat schema khi DB da tao tu phien ban cu (chua co cot don gia / bang chi so / day tro).
- */
+//Cap nhat schema khi DB da tao tu phien ban cu
+
 public final class SchemaMigrator {
 
-    /** MySQL / MariaDB: ER_DUP_FIELDNAME */
     private static final int DUPLICATE_COLUMN = 1060;
 
-    /** Mac dinh cho DB cu chua co bang day_tro */
     public static final String DEFAULT_DAY_TRO_ID = "11111111-1111-1111-1111-111111111111";
 
     public static void ensureLatest() {

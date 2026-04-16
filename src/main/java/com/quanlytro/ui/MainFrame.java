@@ -43,7 +43,7 @@ public class MainFrame extends JFrame {
                      HoaDonController hoaDonController,
                      ThongKeController thongKeController,
                      DayTroController dayTroController) {
-        super("Quan ly phong tro — nhieu day tro");
+        super("Quan ly phong tro");
         this.dayTroController = dayTroController;
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(980, 640);
@@ -111,6 +111,7 @@ public class MainFrame extends JFrame {
                 }
             }
         }
+//      luu lai id cua day tro dang duoc chon de hien thi thong tin cua day do
         if (keep != null) {
             cbDay.setSelectedItem(keep);
             DayTroContext.setSelectedDayTroId(keep.getId());

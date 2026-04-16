@@ -12,11 +12,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class PhongPanel extends JPanel implements Refreshable {
 
@@ -42,6 +47,7 @@ public class PhongPanel extends JPanel implements Refreshable {
         table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        installAreaAndMoneyRenderers(table);
 
         JPanel form = new JPanel(new GridLayout(0, 2, 6, 6));
         form.setBorder(BorderFactory.createTitledBorder("Them phong"));
@@ -72,6 +78,70 @@ public class PhongPanel extends JPanel implements Refreshable {
 
         refresh();
         UiUtils.refreshWhenPanelShown(this, this::refreshData);
+    }
+
+    private static void installAreaAndMoneyRenderers(JTable table) {
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance(new Locale("vi", "VN"));
+        sym.setGroupingSeparator('.');
+        sym.setDecimalSeparator(',');
+
+        DecimalFormat areaFmt = new DecimalFormat("#,##0.##", sym);
+        areaFmt.setRoundingMode(RoundingMode.DOWN);
+
+        DecimalFormat moneyFmtGrouped = new DecimalFormat("#,##0.##", sym);
+        moneyFmtGrouped.setRoundingMode(RoundingMode.DOWN);
+
+        DefaultTableCellRenderer areaRenderer = new DefaultTableCellRenderer() {
+            @Override
+            protected void setValue(Object value) {
+                if (value == null) {
+                    setText("");
+                    return;
+                }
+                try {
+                    BigDecimal bd = value instanceof BigDecimal b
+                            ? b
+                            : new BigDecimal(String.valueOf(value).trim());
+                    bd = bd.stripTrailingZeros();
+                    setText(areaFmt.format(bd) + " m²");
+                } catch (Exception ex) {
+                    setText(String.valueOf(value) + " m²");
+                }
+            }
+        };
+
+        DefaultTableCellRenderer moneyRenderer = new DefaultTableCellRenderer() {
+            @Override
+            protected void setValue(Object value) {
+                if (value == null) {
+                    setText("");
+                    return;
+                }
+                try {
+                    BigDecimal bd = value instanceof BigDecimal b
+                            ? b
+                            : new BigDecimal(String.valueOf(value).trim());
+                    bd = bd.stripTrailingZeros();
+                    if (bd.abs().compareTo(new BigDecimal("100")) >= 0) {
+                        setText(moneyFmtGrouped.format(bd));
+                    } else {
+                        setText(bd.toPlainString());
+                    }
+                } catch (Exception ex) {
+                    setText(String.valueOf(value));
+                }
+            }
+        };
+
+
+        int areaView = table.convertColumnIndexToView(1);
+        if (areaView >= 0 && areaView < table.getColumnModel().getColumnCount()) {
+            table.getColumnModel().getColumn(areaView).setCellRenderer(areaRenderer);
+        }
+        int moneyView = table.convertColumnIndexToView(2);
+        if (moneyView >= 0 && moneyView < table.getColumnModel().getColumnCount()) {
+            table.getColumnModel().getColumn(moneyView).setCellRenderer(moneyRenderer);
+        }
     }
 
     @Override

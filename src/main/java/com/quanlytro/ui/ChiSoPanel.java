@@ -16,12 +16,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class ChiSoPanel extends JPanel implements Refreshable {
 
@@ -66,6 +71,7 @@ public class ChiSoPanel extends JPanel implements Refreshable {
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        installGroupedNumberRenderer(table, 3, 4, 5, 6);
 
         JPanel form = new JPanel(new GridLayout(0, 2, 6, 6));
         form.setBorder(BorderFactory.createTitledBorder("Nhap chi so theo ky (thang)"));
@@ -99,9 +105,9 @@ public class ChiSoPanel extends JPanel implements Refreshable {
         add(north, BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
-        JLabel hint = new JLabel("<html><small>Don gia dien/nuoc lay tren hop dong (tab Hop dong). "
-                + "Tao hoa don co the dung nut <b>Dien tu chi so + phong</b> o tab Hoa don.</small></html>");
-        add(hint, BorderLayout.SOUTH);
+//        JLabel hint = new JLabel("<html><small>Don gia dien/nuoc lay tren hop dong (tab Hop dong). "
+//                + "Tao hoa don co the dung nut <b>Dien tu chi so + phong</b> o tab Hoa don.</small></html>");
+//        add(hint, BorderLayout.SOUTH);
 
         refreshAll();
         UiUtils.refreshWhenPanelShown(this, this::refreshData);
@@ -182,6 +188,39 @@ public class ChiSoPanel extends JPanel implements Refreshable {
         } else {
             UiUtils.info(this, "Da luu chi so.");
             refreshTable();
+        }
+    }
+
+    private static void installGroupedNumberRenderer(JTable table, int... modelCols) {
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance(new Locale("vi", "VN"));
+        sym.setGroupingSeparator('.');
+        sym.setDecimalSeparator(',');
+        DecimalFormat fmt = new DecimalFormat("#,##0.####", sym);
+        fmt.setRoundingMode(RoundingMode.DOWN);
+
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer() {
+            @Override
+            protected void setValue(Object value) {
+                if (value == null) {
+                    setText("");
+                    return;
+                }
+                try {
+                    BigDecimal bd = value instanceof BigDecimal b
+                            ? b
+                            : new BigDecimal(String.valueOf(value).trim());
+                    setText(fmt.format(bd.stripTrailingZeros()));
+                } catch (Exception ex) {
+                    setText(String.valueOf(value));
+                }
+            }
+        };
+
+        for (int c : modelCols) {
+            int viewCol = table.convertColumnIndexToView(c);
+            if (viewCol >= 0 && viewCol < table.getColumnModel().getColumnCount()) {
+                table.getColumnModel().getColumn(viewCol).setCellRenderer(r);
+            }
         }
     }
 }

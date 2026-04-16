@@ -20,12 +20,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 public class HopDongPanel extends JPanel implements Refreshable {
 
@@ -63,6 +68,7 @@ public class HopDongPanel extends JPanel implements Refreshable {
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
         table.setAutoCreateRowSorter(true);
+        installGroupedNumberRenderer(table, 5);
 
         cbPhong.setRenderer(new DefaultListCellRenderer() {
             @Override
@@ -118,14 +124,14 @@ public class HopDongPanel extends JPanel implements Refreshable {
         actions.add(btnTao);
         actions.add(btnTai);
 
-        JLabel hint = new JLabel(
-                "<html><body style='width:520px'><small>"
-                        + "<b>Goi y:</b> Phong / hop dong theo <b>day dang chon</b> o tren cua so. "
-                        + "Combo phong chi hien phong <b>TRONG</b> trong day do. "
-                        + "Bang duoi la <b>hop dong da lap</b> trong day."
-                        + "</small></body></html>");
+//        JLabel hint = new JLabel(
+//                "<html><body style='width:520px'><small>"
+//                        + "<b>Goi y:</b> Phong / hop dong theo <b>day dang chon</b> o tren cua so. "
+//                        + "Combo phong chi hien phong <b>TRONG</b> trong day do. "
+//                        + "Bang duoi la <b>hop dong da lap</b> trong day."
+//                        + "</small></body></html>");
         JPanel north = new JPanel(new BorderLayout(0, 8));
-        north.add(hint, BorderLayout.NORTH);
+//        north.add(hint, BorderLayout.NORTH);
         north.add(form, BorderLayout.CENTER);
         north.add(actions, BorderLayout.SOUTH);
 
@@ -157,7 +163,7 @@ public class HopDongPanel extends JPanel implements Refreshable {
                     nguoi,
                     DateUtils.format(h.getNgayBatDau()),
                     h.getNgayKetThuc() != null ? DateUtils.format(h.getNgayKetThuc()) : "",
-                    h.getTienCoc() != null ? h.getTienCoc().toString() : "0",
+                    h.getTienCoc(),
                     h.getId()
             });
         }
@@ -191,7 +197,7 @@ public class HopDongPanel extends JPanel implements Refreshable {
         BigDecimal coc;
         try {
             String c = tfCoc.getText().trim();
-            coc = c.isEmpty() ? BigDecimal.ZERO : new BigDecimal(c);
+            coc = c.isEmpty() ? BigDecimal.ZERO : parseMoney(c);
         } catch (Exception ex) {
             UiUtils.error(this, "Tien coc khong hop le.");
             return;
@@ -230,6 +236,51 @@ public class HopDongPanel extends JPanel implements Refreshable {
             tfGiaDien.setText("3500");
             tfGiaNuoc.setText("18000");
             refreshAll();
+        }
+    }
+
+    private static BigDecimal parseMoney(String raw) {
+        String s = raw != null ? raw.trim() : "";
+        if (s.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        // accept "3.500.000", "3500000.00", "3,5"
+        s = s.replace(" ", "");
+        s = s.replace(".", "");
+        s = s.replace(",", ".");
+        return new BigDecimal(s);
+    }
+
+    private static void installGroupedNumberRenderer(JTable table, int... modelCols) {
+        DecimalFormatSymbols sym = DecimalFormatSymbols.getInstance(new Locale("vi", "VN"));
+        sym.setGroupingSeparator('.');
+        sym.setDecimalSeparator(',');
+        DecimalFormat fmt = new DecimalFormat("#,##0.####", sym);
+        fmt.setRoundingMode(RoundingMode.DOWN);
+
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer() {
+            @Override
+            protected void setValue(Object value) {
+                if (value == null) {
+                    setText("");
+                    return;
+                }
+                try {
+                    BigDecimal bd = value instanceof BigDecimal b
+                            ? b
+                            : new BigDecimal(String.valueOf(value).trim());
+                    setText(fmt.format(bd.stripTrailingZeros()));
+                } catch (Exception ex) {
+                    setText(String.valueOf(value));
+                }
+            }
+        };
+
+        for (int c : modelCols) {
+            int viewCol = table.convertColumnIndexToView(c);
+            if (viewCol >= 0 && viewCol < table.getColumnModel().getColumnCount()) {
+                table.getColumnModel().getColumn(viewCol).setCellRenderer(r);
+            }
         }
     }
 }
